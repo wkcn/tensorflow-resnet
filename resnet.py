@@ -101,7 +101,7 @@ def inference_small(x,
     c['fc_units_out'] = num_classes
     c['num_blocks'] = num_blocks
     c['num_classes'] = num_classes
-    inference_small_config(x, c)
+    return inference_small_config(x, c)
 
 def inference_small_config(x, c):
     c['bottleneck'] = False
@@ -145,13 +145,13 @@ def _imagenet_preprocess(rgb):
 
 
 def loss(logits, labels):
-    cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(logits, labels)
+    cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(logits = logits, labels = labels)
     cross_entropy_mean = tf.reduce_mean(cross_entropy)
  
     regularization_losses = tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES)
 
     loss_ = tf.add_n([cross_entropy_mean] + regularization_losses)
-    tf.scalar_summary('loss', loss_)
+    tf.summary.scalar('loss', loss_)
 
     return loss_
 
@@ -255,9 +255,9 @@ def bn(x, c):
     # These ops will only be preformed when training.
     mean, variance = tf.nn.moments(x, axis)
     update_moving_mean = moving_averages.assign_moving_average(moving_mean,
-                                                               mean, BN_DECAY)
+                                                               mean, BN_DECAY, zero_debias = False)
     update_moving_variance = moving_averages.assign_moving_average(
-        moving_variance, variance, BN_DECAY)
+        moving_variance, variance, BN_DECAY, zero_debias = False)
     tf.add_to_collection(UPDATE_OPS_COLLECTION, update_moving_mean)
     tf.add_to_collection(UPDATE_OPS_COLLECTION, update_moving_variance)
 
@@ -300,7 +300,7 @@ def _get_variable(name,
         regularizer = tf.contrib.layers.l2_regularizer(weight_decay)
     else:
         regularizer = None
-    collections = [tf.GraphKeys.VARIABLES, RESNET_VARIABLES]
+    collections = [tf.GraphKeys.GLOBAL_VARIABLES, RESNET_VARIABLES]
     return tf.get_variable(name,
                            shape=shape,
                            initializer=initializer,
