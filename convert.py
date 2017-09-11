@@ -50,9 +50,9 @@ class CaffeParamProvider():
 def preprocess(img):
     """Changes RGB [0,1] valued image to BGR [0,255] with mean subtracted."""
     mean_bgr = load_mean_bgr()
-    print 'mean blue', np.mean(mean_bgr[:, :, 0])
-    print 'mean green', np.mean(mean_bgr[:, :, 1])
-    print 'mean red', np.mean(mean_bgr[:, :, 2])
+    print ('mean blue', np.mean(mean_bgr[:, :, 0]))
+    print ('mean green', np.mean(mean_bgr[:, :, 1]))
+    print ('mean red', np.mean(mean_bgr[:, :, 2]))
     out = np.copy(img) * 255.0
     out = out[:, :, [2, 1, 0]]  # swap channel from RGB to BGR
     out -= mean_bgr
@@ -68,8 +68,8 @@ def assert_almost_equal(caffe_tensor, tf_tensor):
     #    print "caffe", i,  c[:,i]
 
     if t.shape != c.shape:
-        print "t.shape", t.shape
-        print "c.shape", c.shape
+        print ("t.shape", t.shape)
+        print ("c.shape", c.shape)
         sys.exit(1)
 
     d = np.linalg.norm(t - c)
